@@ -97,6 +97,14 @@ public class Arm extends SubsystemBase {
     return angle;
  }
 
+ public double getAnchorMotorPower() {
+   return anchorJointMotor.encoder.getVelocity
+ }
+
+ public double getFloatingMotorPower() {
+   return floatingJointMotor.encoder.getVelocity //TODO: Change this
+ }
+
 
  //Sets angles of joints 
  public void setFloatingAngle(double floatingJointAngle){

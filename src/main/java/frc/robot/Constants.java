@@ -59,6 +59,8 @@ public final class Constants {
             public static final double distanceBetweenPivotLimelight = 48.26;
             public static final boolean kAnchorMotorInverted = false;
             public static final boolean kFloatingMotorInverted = false;
+            public static final double minOscillationThreshold;
+            public static final double maxAngleThreshold;
         }
     }
 
