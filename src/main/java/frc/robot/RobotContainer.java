@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 import frc.robot.util.Controller;
 
-public class RobotContainer {
+public class RobotContainer { 
   private final Controller driverController = new Controller(0);
   
   private final Grabber grabber = new Grabber();

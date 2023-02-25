@@ -52,35 +52,14 @@ public final class Constants {
             public static final double kAnchorArmLength = 101.6;
             public static final double kFloatingArmLength = 40.64;
             public static final double kDegreesPerTick = 360 / 42;
-            public static final double kContractedAnchorAngle = 0.0;
-            public static final double kContractedFloatingAngle = 0.0;
+            public static final double kContractedAnchorAngle = 13.5;
+            public static final double kContractedFloatingAngle = 24.0;
             public static final double kUndershotAngle = 0.0;
             public static final double kLowPower = 0.05;
             public static final double distanceBetweenPivotLimelight = 48.26;
             public static final boolean kAnchorMotorInverted = false;
             public static final boolean kFloatingMotorInverted = false;
         }
-    }
-
-// TODO: update constants to fit new robot
-
-  public static final class Arm {
-        public static final double kAnchorArmLength;
-        public static final double kFloatingArmLength;
-        public static final double kLowY = ;
-        public static final double kLowZ = ;
-        public static final double kMidNodeY = ;
-        public static final double kMidNodeZ = ;
-        public static final double kMidShelfY = ;
-        public static final double kMidShelfZ = ;
-        public static final double kHighNodeY = ;
-        public static final double kHighNodeZ = ;
-        public static final double kHighShelfY = ;
-        public static final double kHighShelfZ = ;
-        public static final double kTicksPerRevolution = 360 / 42;
-        public static final double kContractedAnchorAngle = 13.5;
-        public static final double kContractedFloatingAngle = 24;
-        public static final double kMotorPower;
     }
 
   public static  class Grabber {
