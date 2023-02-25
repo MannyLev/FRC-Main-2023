@@ -1,6 +1,7 @@
 package frc.robot.subsystems.arm;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.SparkMaxPIDController;
@@ -11,98 +12,135 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 public class Arm extends SubsystemBase {
+   // TODO: ideally privatize these for semantics, but not super important
+   public CANSparkMax anchorMotor, floatingMotor;
+   public RelativeEncoder anchorEncoder, floatingEncoder;
+   public SparkMaxPIDController anchorPIDController, floatingPIDController;
 
-    public CANSparkMax anchorJointMotor, floatingJointMotor;
-    public SparkMaxPIDController anchorJointPIDController, floatingJointPIDController;
-    public double floatingJointAngle, anchorJointAngle;
-    public DigitalInput anchorLimitSwitch, floatingLimitSwitch;
-    public boolean anchorLimitSwitchTriggered, floatingLimitSwitchTriggered;
-    
-    
+   // TODO: port error, uncomment when limit switches actually exist
+   // public DigitalInput anchorLimitSwitch, floatingLimitSwitch;
 
- public Arm() {
-     
-     this.anchorJointMotor = new CANSparkMax(Constants.Arms.Ports.kAnchorJointPort, CANSparkMax.MotorType.kBrushless);
-     this.floatingJointMotor = new CANSparkMax(Constants.Arms.Ports.kFloatingArmPort, CANSparkMax.MotorType.kBrushless);
+   public Arm() {
+      this.anchorMotor = new CANSparkMax(Constants.Arm.Ports.kAnchorPort, CANSparkMax.MotorType.kBrushless);
+      this.floatingMotor = new CANSparkMax(Constants.Arm.Ports.kFloatingPort, CANSparkMax.MotorType.kBrushless);
 
-     this.anchorJointAngle = Constants.Arms.Miscellaneous.kContractedAnchorAngle;
-     this.floatingJointAngle = Constants.Arms.Miscellaneous.kContractedFloatingAngle;
-      
+      this.configureMotors();
 
-     // For PID
-     //This order might need to change as setting to angle ^ should be done after this (maybe) and 
-     // the code below might not be needed sense we are taking canSpark motors delete below
+      this.anchorEncoder = this.anchorMotor.getEncoder();
+      this.floatingEncoder = this.floatingMotor.getEncoder();
 
-     
+      this.configureEncoders();
+
+      this.anchorPIDController = this.anchorMotor.getPIDController();
+      this.floatingPIDController = this.floatingMotor.getPIDController();
+
+      this.configureControllers();
+
+      this.initTuneControllers();
+   }
+
+   public void configureMotors(){
+      this.anchorMotor.setInverted(Constants.Arm.Anchor.kInverted);
+      this.floatingMotor.setInverted(Constants.Arm.Anchor.kInverted);
+
+      // TODO: uncomment once we validate encoders will enforce this meaningfully
       // Set Limits for angles which arms can  go to 
-     this.anchorJointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Constants.Arms.AnchorJoint.kMinAngle);
-     this.anchorJointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) Constants.Arms.AnchorJoint.kMaxAngle);
-     this.anchorJointMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-     this.anchorJointMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-     
-     this.floatingJointMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Constants.Arms.FloatingJoint.kMinAngle);
-     this.floatingJointMotor.setSoftLimit(SoftLimitDirection.kForward, (float) Constants.Arms.FloatingJoint.kMaxAngle);
-     this.floatingJointMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
-     this.floatingJointMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
-     
-     // Get PID controllers for each arm which is each have their own PID values
-     this.anchorJointPIDController = this.anchorJointMotor.getPIDController();
-     this.floatingJointPIDController = this.floatingJointMotor.getPIDController();
+      //   this.anchorMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Constants.Arm.Anchor.kMinAngle);
+      //   this.anchorMotor.setSoftLimit(SoftLimitDirection.kForward, (float) Constants.Arm.Anchor.kMaxAngle);
+      //   this.anchorMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+      //   this.anchorMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+      
+      //   this.floatingMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) Constants.Arm.Floating.kMinAngle);
+      //   this.floatingMotor.setSoftLimit(SoftLimitDirection.kForward, (float) Constants.Arm.Floating.kMaxAngle);
+      //   this.floatingMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+      //   this.floatingMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+   }
 
-     this.anchorJointPIDController.setP(Constants.Arms.AnchorJoint.kP);
-     this.anchorJointPIDController.setI(Constants.Arms.AnchorJoint.kI);
-     this.anchorJointPIDController.setD(Constants.Arms.AnchorJoint.kD);
-     this.anchorJointPIDController.setFF(Constants.Arms.AnchorJoint.kFF);
+   public void configureEncoders(){
+      // TODO: find these conversion rates
+      this.anchorEncoder.setPositionConversionFactor(Constants.Arm.Anchor.kRatio);
+      this.floatingEncoder.setPositionConversionFactor(Constants.Arm.Floating.kRatio);
 
-     this.floatingJointPIDController.setP(Constants.Arms.FloatingJoint.kP);
-     this.floatingJointPIDController.setI(Constants.Arms.FloatingJoint.kI);
-     this.floatingJointPIDController.setD(Constants.Arms.FloatingJoint.kD);
-     this.floatingJointPIDController.setFF(Constants.Arms.FloatingJoint.kFF);
+      this.anchorEncoder.setPosition(Constants.Arm.Anchor.kContracted);
+      this.floatingEncoder.setPosition(Constants.Arm.Floating.kContracted);
+   }
 
-      SmartDashboard.putNumber("anchorKP", SmartDashboard.getNumber("anchorKP", Constants.Arms.AnchorJoint.kP));
-      SmartDashboard.putNumber("anchorKI", SmartDashboard.getNumber("anchorKI", Constants.Arms.AnchorJoint.kI));
-      SmartDashboard.putNumber("anchorKD", SmartDashboard.getNumber("anchorKD", Constants.Arms.AnchorJoint.kD));
-      SmartDashboard.putNumber("anchorKFF", SmartDashboard.getNumber("anchorKFF", Constants.Arms.AnchorJoint.kFF));
+   public void configureControllers(){
+      this.anchorPIDController.setP(Constants.Arm.Anchor.kP);
+      this.anchorPIDController.setI(Constants.Arm.Anchor.kI);
+      this.anchorPIDController.setD(Constants.Arm.Anchor.kD);
+      this.anchorPIDController.setFF(Constants.Arm.Anchor.kFF);
+      // this.anchorPIDController.set 
+
+      this.floatingPIDController.setP(Constants.Arm.Floating.kP);
+      this.floatingPIDController.setI(Constants.Arm.Floating.kI);
+      this.floatingPIDController.setD(Constants.Arm.Floating.kD);
+      this.floatingPIDController.setFF(Constants.Arm.Floating.kFF);
+   }
+
+   public void initTuneControllers(){
+      SmartDashboard.putNumber("anchor  KP", SmartDashboard.getNumber("anchorKP", Constants.Arm.Anchor.kP));
+      SmartDashboard.putNumber("anchorKI", SmartDashboard.getNumber("anchorKI", Constants.Arm.Anchor.kI));
+      SmartDashboard.putNumber("anchorKD", SmartDashboard.getNumber("anchorKD", Constants.Arm.Anchor.kD));
+      SmartDashboard.putNumber("anchorKFF", SmartDashboard.getNumber("anchorKFF", Constants.Arm.Anchor.kFF));
    
-      SmartDashboard.putNumber("floatingKP", SmartDashboard.getNumber("floatingKP", Constants.Arms.FloatingJoint.kP));
-      SmartDashboard.putNumber("floatingKI", SmartDashboard.getNumber("floatingKI", Constants.Arms.FloatingJoint.kI));
-      SmartDashboard.putNumber("floatingKD", SmartDashboard.getNumber("floatingKD", Constants.Arms.FloatingJoint.kD));
-      SmartDashboard.putNumber("floatingKFF", SmartDashboard.getNumber("floatingKFF", Constants.Arms.FloatingJoint.kFF));
-   }  
+      SmartDashboard.putNumber("floating KP", SmartDashboard.getNumber("floatingKP", Constants.Arm.Floating.kP));
+      SmartDashboard.putNumber("floatingKI", SmartDashboard.getNumber("floatingKI", Constants.Arm.Floating.kI));
+      SmartDashboard.putNumber("floatingKD", SmartDashboard.getNumber("floatingKD", Constants.Arm.Floating.kD));
+      SmartDashboard.putNumber("floatingKFF", SmartDashboard.getNumber("floatingKFF", Constants.Arm.Floating.kFF));
+   }
+
+   public void tuneControllers(){
+      double floatingKP = SmartDashboard.getEntry("floating KP").getDouble(0);
+      double floatingKI = SmartDashboard.getEntry("floatingKI").getDouble(0);
+      double floatingKD = SmartDashboard.getEntry("floatingKD").getDouble(0);
+      double floatingKFF = SmartDashboard.getEntry("floatingKFF").getDouble(0);
+      double anchorKP = SmartDashboard.getEntry("anchor  KP").getDouble(0);
+      double anchorKI = SmartDashboard.getEntry("anchorKI").getDouble(0);
+      double anchorKD = SmartDashboard.getEntry("anchorKD").getDouble(0);
+      double anchorKFF = SmartDashboard.getEntry("anchorKFF").getDouble(0);
+
+      this.floatingPIDController.setP(floatingKP);
+      this.floatingPIDController.setI(floatingKI);
+      this.floatingPIDController.setD(floatingKD);
+      this.floatingPIDController.setFF(floatingKFF);
+      this.anchorPIDController.setP(anchorKP);
+      this.anchorPIDController.setI(anchorKI);
+      this.anchorPIDController.setD(anchorKD);
+      this.anchorPIDController.setFF(anchorKFF);
+   }
    
+   // TODO: double check formula transcription and maybe try to break it up
+   //finds the two angles for the arm - will be above the line from joint to obj
+   //angle calculated from joint so maybe change to arm 2 horizontal
+   public double[] calculateAngles(double dy, double dz) {
+      double adjustedY = dy - Constants.Arm.Misc.distanceBetweenPivotLimelight;
 
-//finds the two angles for the arm - will be above the line from joint to obj
-//angle calculated from joint so maybe change to arm 2 horizontal
- public double[] calculateAngles(double dy, double dz) {
-    double adjustedY = dy - Constants.Arms.Miscellaneous.distanceBetweenPivotLimelight;
-    double[] angles = new double[2];
-    double distanceToObj = Math.sqrt(adjustedY*adjustedY + dz*dz);
-    double alpha = Math.acos((Constants.Arms.Miscellaneous.kFloatingArmLength*Constants.Arms.Miscellaneous.kFloatingArmLength + distanceToObj*distanceToObj- Constants.Arms.Miscellaneous.kAnchorArmLength*Constants.Arms.Miscellaneous.kAnchorArmLength)/(2*Constants.Arms.Miscellaneous.kAnchorArmLength*distanceToObj));
-    double gamma = Math.atan2(adjustedY, dz);
-    //finds theta1, the angle between the horizontal and anchorJoint
-    angles[0] = alpha+gamma;
-    angles[1] = Math.PI - Math.acos((Constants.Arms.Miscellaneous.kAnchorArmLength * Constants.Arms.Miscellaneous.kAnchorArmLength + Constants.Arms.Miscellaneous.kFloatingArmLength * Constants.Arms.Miscellaneous.kFloatingArmLength - distanceToObj * distanceToObj) / (2 * Constants.Arms.Miscellaneous.kAnchorArmLength * Constants.Arms.Miscellaneous.kFloatingArmLength));
-    return angles;
- }
+      double distanceToObj = Math.sqrt(adjustedY * adjustedY + dz * dz);
+      double alpha = Math.acos((Constants.Arm.Floating.kLength * Constants.Arm.Floating.kLength + distanceToObj * distanceToObj - Constants.Arm.Anchor.kLength * Constants.Arm.Anchor.kLength) / (2 * Constants.Arm.Anchor.kLength * distanceToObj));
+      double gamma = Math.atan2(adjustedY, dz);
 
- public double getAnchorAngleFromEncoder() {
-    double angle = anchorJointMotor.getEncoder().getPosition() * (Constants.Arms.Miscellaneous.kDegreesPerTick);
-    this.anchorJointAngle = angle;
-    return angle;
- }
+      double[] angles = new double[2];
+      angles[0] = alpha + gamma;
+      angles[1] = Math.PI - Math.acos((Constants.Arm.Anchor.kLength * Constants.Arm.Anchor.kLength + Constants.Arm.Floating.kLength * Constants.Arm.Floating.kLength - distanceToObj * distanceToObj) / (2 * Constants.Arm.Anchor.kLength * Constants.Arm.Floating.kLength));
+      
+      return angles;
+   }
 
- public double getFloatingAngleFromEncoder() {
-    double angle = floatingJointMotor.getEncoder().getPosition() * Constants.Arms.Miscellaneous.kDegreesPerTick;
-    this.floatingJointAngle = angle;
-    return angle;
- }
+   public double getAnchorAngle() {
+      return this.anchorEncoder.getPosition();
+   }
+
+   public double getFloatingAngle() {
+      return this.floatingEncoder.getPosition();
+   }
 
  public double getAnchorMotorPower() {
-   return anchorJointMotor.encoder.getVelocity
+   return this.anchorJointMotor.encoder.getVelocity
  }
 
  public double getFloatingMotorPower() {
-   return floatingJointMotor.encoder.getVelocity //TODO: Change this
+   return this.floatingJointMotor.encoder.getVelocity //TODO: Change this
  }
 
 
@@ -111,37 +149,24 @@ public class Arm extends SubsystemBase {
    this.floatingJointPIDController.setReference(floatingJointAngle, CANSparkMax.ControlType.kPosition);
 }
 
-public void setAnchorAngle(double anchorJointAngle) {
-   this.anchorJointPIDController.setReference(anchorJointAngle, CANSparkMax.ControlType.kPosition);
-}
+   public void setAnchorAngle(double anchorAngle) {
+      this.anchorPIDController.setReference(anchorAngle, CANSparkMax.ControlType.kPosition);
+   }
 
-public boolean isAnchorAtAngle(double anchorJointAngleTarget){
-   return Math.abs(getAnchorAngleFromEncoder() - anchorJointAngleTarget ) < Constants.Arms.AnchorJoint.kanchorJointErrorThreshold;
-}
+   public boolean isAnchorAtAngle(double anchorAngleTarget){
+      return Math.abs(this.getAnchorAngle() - anchorAngleTarget ) < Constants.Arm.Anchor.kErrorThreshold;
+   }
 
-public boolean isFloatingAtAngle(double floatingJointAngleTarget){
-   return Math.abs(getFloatingAngleFromEncoder() - floatingJointAngleTarget ) < Constants.Arms.FloatingJoint.kFloatingJointErrorThreshold;
-}
+   public boolean isFloatingAtAngle(double floatingAngleTarget){
+      return Math.abs(this.getFloatingAngle() - floatingAngleTarget ) < Constants.Arm.Floating.kErrorThreshold;
+   }
 
-public void periodic() {
-   this.anchorLimitSwitchTriggered = !this.anchorLimitSwitch.get();
-   this.floatingLimitSwitchTriggered = !this.floatingLimitSwitch.get();
-   double floatingKP = SmartDashboard.getEntry("floatingKP").getDouble(0);
-   double floatingKI = SmartDashboard.getEntry("floatingKI").getDouble(0);
-   double floatingKD = SmartDashboard.getEntry("floatingKD").getDouble(0);
-   double floatingKFF = SmartDashboard.getEntry("floatingKFF").getDouble(0);
-   double anchorKP = SmartDashboard.getEntry("anchorKP").getDouble(0);
-   double anchorKI = SmartDashboard.getEntry("anchorKI").getDouble(0);
-   double anchorKD = SmartDashboard.getEntry("anchorKD").getDouble(0);
-   double anchorKFF = SmartDashboard.getEntry("anchorKFF").getDouble(0);
-   this.floatingJointPIDController.setP(floatingKP);
-   this.floatingJointPIDController.setI(floatingKI);
-   this.floatingJointPIDController.setD(floatingKD);
-   this.floatingJointPIDController.setFF(floatingKFF);
-   this.anchorJointPIDController.setP(anchorKP);
-   this.anchorJointPIDController.setI(anchorKI);
-   this.anchorJointPIDController.setD(anchorKD);
-   this.anchorJointPIDController.setFF(anchorKFF);
-}
+   @Override
+   public void periodic(){
+      // TODO: comment out tuneControllers() at comp
+      tuneControllers();
 
+      SmartDashboard.putNumber("Anchor  Angle", this.getAnchorAngle());
+      SmartDashboard.putNumber("Floating Angle", this.getFloatingAngle());
+   }
 }

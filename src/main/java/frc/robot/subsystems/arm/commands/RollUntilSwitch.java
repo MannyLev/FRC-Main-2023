@@ -1,36 +1,33 @@
 package frc.robot.subsystems.arm.commands;
 
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.arm.Arm;
 
-public class RollUntilSwitch extends CommandBase{
+public class RollUntilSwitch extends CommandBase {
     public Arm arm;
-    public RelativeEncoder encoder;
     
-    public RollUntilSwitch(Arm arm, RelativeEncoder encoder) {
+    public RollUntilSwitch(Arm arm) {
         this.arm = arm;
-        this.encoder = encoder;
     }
 
     @Override
     public void execute() {
-        arm.anchorJointMotor.set(Constants.Arms.Miscellaneous.kLowPower);
+        arm.anchorMotor.set(Constants.Arm.Misc.kLowPower);
     }
 
     @Override
     public void end(boolean interrupted){
-        if (interrupted) {
-            arm.anchorJointMotor.set(0);
-            this.encoder.setPosition(0);
-        }
+        arm.anchorMotor.set(0);
+        // TODO: wouldn't we set this to contracted position not 0?
+        arm.anchorEncoder.setPosition(0);
     }
 
     @Override
     public boolean isFinished() {
-        return this.arm.anchorLimitSwitchTriggered;
+        return true;
+
+        // TODO: make arm method to read limit switch directly
+        // return this.arm.anchorLimitSwitchTriggered;
     }
-
-
 }
