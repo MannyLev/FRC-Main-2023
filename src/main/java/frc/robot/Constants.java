@@ -33,16 +33,17 @@ public final class Constants {
         }
 
         public static final class Positions{
-            public static final double kLowFloating = 0.0;
-            public static final double kLowAnchor = 0.0;
-            public static final double kMidNodeFloating = 0.0;
-            public static final double kMidNodeAnchor = 0.0;
-            public static final double kMidShelfFloating = 0.0;
-            public static final double kMidShelfAnchor = 0.0;
-            public static final double kHighNodeFloating = 0.0;
-            public static final double kHighNodeAnchor = 0.0;
-            public static final double kHighShelfFloating = 0.0;
-            public static final double kHighShelfAnchor = 0.0;
+            public static final double kLowFloatingCube = 84.5;
+            public static final double kLowFloatingCone = 75.4;
+            public static final double kLowAnchor = 13.0;
+            public static final double kMidNodeFloating = 78.1;
+            public static final double kMidNodeAnchor = 51.0;
+            public static final double kMidShelfFloating = 96.5;
+            public static final double kMidShelfAnchor = 45.6;
+            public static final double kHighNodeFloating = 139.6;
+            public static final double kHighNodeAnchor = 86.5;
+            public static final double kHighShelfFloating = 159.6;
+            public static final double kHighShelfAnchor = 81.6;
             public static final double kIntakeShelfFloating = 0.0;
             public static final double kIntakeShelfAnchor = 0.0; 
         }
@@ -66,19 +67,19 @@ public final class Constants {
   public static final class Arm {
         public static final double kAnchorArmLength;
         public static final double kFloatingArmLength;
-        public static final double kLowY;
-        public static final double kLowZ;
-        public static final double kMidNodeY;
-        public static final double kMidNodeZ;
-        public static final double kMidShelfY;
-        public static final double kMidShelfZ;
-        public static final double kHighNodeY;
-        public static final double kHighNodeZ;
-        public static final double kHighShelfY;
-        public static final double kHighShelfZ;
+        public static final double kLowY = ;
+        public static final double kLowZ = ;
+        public static final double kMidNodeY = ;
+        public static final double kMidNodeZ = ;
+        public static final double kMidShelfY = ;
+        public static final double kMidShelfZ = ;
+        public static final double kHighNodeY = ;
+        public static final double kHighNodeZ = ;
+        public static final double kHighShelfY = ;
+        public static final double kHighShelfZ = ;
         public static final double kTicksPerRevolution = 360 / 42;
-        public static final double kContractedAnchorAngle;
-        public static final double kContractedFloatingAngle;
+        public static final double kContractedAnchorAngle = 13.5;
+        public static final double kContractedFloatingAngle = 24;
         public static final double kMotorPower;
     }
 
