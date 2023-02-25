@@ -136,11 +136,11 @@ public class Arm extends SubsystemBase {
    }
 
  public double getAnchorMotorPower() {
-   return anchorJointMotor.encoder.getVelocity
+   return this.anchorJointMotor.encoder.getVelocity
  }
 
  public double getFloatingMotorPower() {
-   return floatingJointMotor.encoder.getVelocity //TODO: Change this
+   return this.floatingJointMotor.encoder.getVelocity //TODO: Change this
  }
 
 

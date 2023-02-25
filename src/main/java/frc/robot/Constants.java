@@ -95,17 +95,14 @@ public final class Constants {
             public static final double kDegreesPerTick = 360 / 42;
             public static final double kContractedAnchorAngle = 13.5;
             public static final double kContractedFloatingAngle = 24.0;
-        public static final class Misc {
             public static final double kUndershotAngle = 0.0;
             public static final double kLowPower = 0.001;
             public static final double distanceBetweenPivotLimelight = 48.26;
-            public static final double minOscillationThreshold;
-            public static final double maxAngleThreshold;
-        }
+            public static final double minOscillationThreshold = 0.0;
+            public static final double maxAngleThreshold = 0.0;
     }
 
     public static  class Grabber {
-  public static  class Grabber {
         public static int kPistonDeploy = 0;
         public static int kPistonRetract = 1;
         public static int kGrabberSensor;
@@ -185,4 +182,5 @@ public final class Constants {
         public static final double kD = 0;
         public static final double kErrorThreshold = 2.0;
     }
+}
 }
