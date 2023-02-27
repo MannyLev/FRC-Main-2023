@@ -8,7 +8,7 @@ import frc.robot.Constants;
 
 import frc.robot.subsystems.arm.Arm;
 
-public class MoveAnchorJoint extends CommandBase{
+public class MoveAnchorJoint extends CommandBase {
     public DoubleSupplier desiredAngle;
     public Arm arm;
 
@@ -20,11 +20,18 @@ public class MoveAnchorJoint extends CommandBase{
 
     @Override
     public void execute() {
-        arm.setAnchorMotorPower(Constants.Arm.Anchor.kP * (Math.sin(arm.getAnchorAngleFromEncoder() * Math.PI / 180.0) - Math.sin(this.desiredAngle)) + Constants.Arms.anchorJointAngle.kFF * Math.sin(this.desiredAngle));
+        double maintainTerm = Constants.Arm.Anchor.kFF * Math.sin(arm.getAnchorAngle() * Math.PI / 180);
+        double correctionTerm = Constants.Arm.Anchor.kP * (arm.getAnchorAngle() - desiredAngle.getAsDouble());
+
+        double output = maintainTerm + correctionTerm;
+        
+        arm.anchorMotor.set(output);
     }
 
     @Override
     public boolean isFinished() {
-        return arm.isAnchorAtAngle(Constants.Arm.Miscellaneous.maxAngleThreshold) && (arm.getAnchorMotorPower < Constants.Arm.Miscellaneous.minOscillationThreshold));
+        return arm.isAnchorAtAngle(desiredAngle.getAsDouble());
+
+        // return arm.isAnchorAtAngle(desiredAngle.getAsDouble()) && (arm.getAnchorMotorPower() < Constants.Arm.Miscellaneous.minOscillationThreshold);
     }
 }

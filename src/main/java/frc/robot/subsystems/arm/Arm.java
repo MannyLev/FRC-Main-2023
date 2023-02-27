@@ -114,7 +114,7 @@ public class Arm extends SubsystemBase {
    //finds the two angles for the arm - will be above the line from joint to obj
    //angle calculated from joint so maybe change to arm 2 horizontal
    public double[] calculateAngles(double dy, double dz) {
-      double adjustedY = dy - Constants.Arm.Misc.distanceBetweenPivotLimelight;
+      double adjustedY = dy - Constants.Arm.Miscellaneous.distanceBetweenPivotLimelight;
 
       double distanceToObj = Math.sqrt(adjustedY * adjustedY + dz * dz);
       double alpha = Math.acos((Constants.Arm.Floating.kLength * Constants.Arm.Floating.kLength + distanceToObj * distanceToObj - Constants.Arm.Anchor.kLength * Constants.Arm.Anchor.kLength) / (2 * Constants.Arm.Anchor.kLength * distanceToObj));
@@ -135,19 +135,19 @@ public class Arm extends SubsystemBase {
       return this.floatingEncoder.getPosition();
    }
 
- public double getAnchorMotorPower() {
-   return this.anchorJointMotor.encoder.getVelocity
- }
+   public double getAnchorMotorPower() {
+      return this.anchorEncoder.getVelocity();
+   }
 
- public double getFloatingMotorPower() {
-   return this.floatingJointMotor.encoder.getVelocity //TODO: Change this
- }
+   public double getFloatingMotorPower() {
+      return this.floatingEncoder.getVelocity(); //TODO: Change this
+   }
 
 
- //Sets angles of joints 
- public void setFloatingAngle(double floatingJointAngle){
-   this.floatingJointPIDController.setReference(floatingJointAngle, CANSparkMax.ControlType.kPosition);
-}
+   //Sets angles of joints 
+   public void setFloatingAngle(double floatingJointAngle){
+      this.floatingPIDController.setReference(floatingJointAngle, CANSparkMax.ControlType.kPosition);
+   }
 
    public void setAnchorAngle(double anchorAngle) {
       this.anchorPIDController.setReference(anchorAngle, CANSparkMax.ControlType.kPosition);
