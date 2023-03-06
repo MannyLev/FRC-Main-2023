@@ -8,33 +8,38 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drivetrain.Drivetrain;
 
 public class Balance extends PIDCommand {
+    private Gyro gyro;
+
     public Balance(Drivetrain drivetrain, Gyro gyro, double setpoint) {
         super(
             new PIDController(Constants.Balance.kP, Constants.Balance.kI, Constants.Balance.kD),
-            gyro::getRoll,
+            gyro::getPitch,
             // Set reference to target
             () -> setpoint,
             // Pipe output to turn robot
-            (outputPower) -> drivetrain.curvatureDrive(outputPower, 0, frc.robot.util.DriverController.Mode.NORMAL), // TODO: was this negative?
+            (outputPower) -> drivetrain.arcadeDrive(outputPower, 0),
             drivetrain
         );
 
-        SmartDashboard.putBoolean("Balance Running", true);
-        SmartDashboard.putNumber("kP", SmartDashboard.getNumber("kP", Constants.Balance.kP));
+        this.gyro = gyro;
 
-        this.getController().setTolerance(Constants.Balance.kErrorThreshold);
+        SmartDashboard.putBoolean("Balance Running", true);
+        SmartDashboard.putNumber("balance-kP", SmartDashboard.getNumber("balance-kP", Constants.Balance.kP));
+        SmartDashboard.putNumber("balance-kD", SmartDashboard.getNumber("balance-kD", Constants.Balance.kD));
     
         addRequirements(drivetrain);
     }
 
     @Override
     public void execute(){
+        this.m_controller.setP(SmartDashboard.getNumber("balance-kP", 0));
+        this.m_controller.setD(SmartDashboard.getNumber("balance-kD", 0));
+
         double output = this.m_controller.calculate(this.m_measurement.getAsDouble(), this.m_setpoint.getAsDouble());
 
-        this.m_useOutput.accept(output);
+        this.m_useOutput.accept(-output);
 
         // TODO: we can tune this more if necessary, but 0.008 works well
-        // this.m_controller.setP(SmartDashboard.getNumber("kP", 0));
     }
 
     @Override
@@ -46,6 +51,9 @@ public class Balance extends PIDCommand {
 
     @Override
     public boolean isFinished(){
-        return this.getController().atSetpoint();
+        return (
+            Math.abs(this.m_measurement.getAsDouble()) < Constants.Balance.kPositionTolerance &&
+            Math.abs(this.gyro.getPitchVelocity()) < Constants.Balance.kVelocityTolerance
+        );
     }
 }

@@ -102,7 +102,7 @@ public final class Constants {
             public static final double maxAngleThreshold = 0.0;
     }
 
-    public static  class Grabber {
+    public static class Grabber {
         public static int kPistonDeploy = 0;
         public static int kPistonRetract = 1;
         public static int kGrabberSensor;
@@ -111,6 +111,12 @@ public final class Constants {
         public static double kMax;
         public static double kStart;
         public static double kMin;
+    }
+
+    public static class Intake {
+        public static int kPort; // TODO
+        public static double kForwardPower = 0.2;
+        public static double kBackwardPower = -0.2;
     }
 
     public static class Trajectory {
@@ -185,7 +191,8 @@ public final class Constants {
         public static final double kP = 0.008;
         public static final double kI = 0;
         public static final double kD = 0;
-        public static final double kErrorThreshold = 2.0;
+        public static final double kPositionTolerance = 2.0; // TODO: tune this, also keep in mind gyro alignment is trash
+        public static final double kVelocityTolerance = 1.0; // TODO: tune this, 1 degree per second seems pretty reasonable for stopped state
     }
 }
 }

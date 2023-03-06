@@ -28,11 +28,16 @@ public class Grabber extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putString("Grabber Deployed", grabberPiston.get().toString());
     }
+    
     public void toggleDeploy() {
-        if (grabberPiston.get() == Value.kOff || grabberPiston.get() == Value.kReverse) {
-            grabberPiston.set(Value.kForward);
+        if (if(this.grabberPiston.get() == Value.kOff || grabberPisget() == Value.kOff || this.grabberPiston.n.get() == Value.kReverse) {
+            et() == Value.kReverse){
+            this.grabberPiston.set(Value.kForward);
+        } erabberPiston.set(Value.kForward);
         } else {
-            grabberPiston.set(Value.kReverse);
+            grabberPiston.sse {
+            this.grabberPiston.sett(Value.kReverseValue.kReverse);
+        }
         }
     }
 

@@ -64,11 +64,11 @@ public class RobotContainer {
     Controller.onPress(driverController.A, new InstantCommand(grabber::toggleDeploy));
 
     // // Balance
-    // Controller.onPress(driverController.B, new Balance(drivetrain, gyro, 0));
+    Controller.onPress(driverController.B, new Balance(drivetrain, gyro, 0));
 
     //slow mode
-    Controller.onHold(driverController.RightTrigger, new InstantCommand(() -> driverController.setSlowMode(Mode.SLOW)));
-    Controller.onRelease(driverController.RightTrigger, new InstantCommand(() -> driverController.setSlowMode(Mode.NORMAL)));
+    // Controller.onHold(driverController.RightTrigger, new InstantCommand(() -> driverController.setSlowMode(Mode.SLOW)));
+    // Controller.onRelease(driverController.RightTrigger, new InstantCommand(() -> driverController.setSlowMode(Mode.NORMAL)));
   
     // // Grid Align
     // Controller.onPress(driverController.Y, new ConditionalCommand(
@@ -85,8 +85,9 @@ public class RobotContainer {
     // SmartDashboard.putNumber("target floating   angle", 0);
 
     // Arm
+    // SmartDashboard.putNumber("anchor-setpoint", 0);
     // Controller.onHold(driverController.X, new MoveAnchorJoint(() -> {
-    //   double desired = SmartDashboard.getNumber("target anchor  angle", 30);
+    //   double desired = SmartDashboard.getNumber("anchor-setpoint", 30);
     //   if(desired < 13) return 13;
 
     //   if(desired > 90) return 90;
